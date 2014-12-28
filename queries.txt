@@ -1,0 +1,42 @@
+# Scrobbles by year
+SELECT strftime('%Y', datetime(timestamp, 'unixepoch')) as year, count(id) FROM scrobble GROUP BY year ORDER BY year;
+
+# Scrobbles by month
+SELECT strftime('%Y', datetime(timestamp, 'unixepoch')) as year, strftime('%m', datetime(timestamp, 'unixepoch')) as month, count(id) FROM scrobble GROUP BY year, month ORDER BY year, month;
+
+# Scrobbles by week
+SELECT strftime('%Y', datetime(timestamp, 'unixepoch')) as year, strftime('%W', datetime(timestamp, 'unixepoch')) as week, count(id) FROM scrobble GROUP BY year, week ORDER BY year, week;
+
+# Scrobbles by day (0 counts not included)
+SELECT strftime('%Y', datetime(timestamp, 'unixepoch')) as year, strftime('%j', datetime(timestamp, 'unixepoch')) as day, count(id) FROM scrobble GROUP BY year, day ORDER BY year, day;
+
+
+# Avg scrobbles per year (10 years)
+SELECT count(id) / 10.0 FROM scrobble;
+
+# Avg scrobbles per month (120 months)
+SELECT count(id) / 120.0 FROM scrobble;
+
+# Avg scrobbles per week (520 weeks)
+SELECT count(id) / 520.0 FROM scrobble;
+
+# Avg scrobbles per day (3652 days)
+SELECT count(id) / 3652.0 FROM scrobble;
+ 
+
+# Scrobbles by month recurring
+SELECT strftime('%m', datetime(timestamp, 'unixepoch')) as month, count(id) AS scrobbles FROM scrobble GROUP BY month ORDER BY month;
+
+# Scrobbles by week recurring
+SELECT strftime('%W', datetime(timestamp, 'unixepoch')) AS week, count(id) AS scrobbles FROM scrobble GROUP BY week ORDER BY week;
+
+# Scrobbles by day recurring
+SELECT strftime('%j', datetime(timestamp, 'unixepoch')) AS day, count(id) AS scrobbles FROM scrobble GROUP BY day ORDER BY day;
+
+
+# Top artists per year
+SELECT strftime('%Y', datetime(s.timestamp, 'unixepoch')) as year, a.name, count(s.id) AS scrobbles FROM scrobble s, track t, artist a WHERE s.track_id=t.id AND t.artist_id=a.id AND year='2014' GROUP BY year, a.name ORDER BY scrobbles DESC LIMIT 10;
+
+# Top tracks per year
+SELECT strftime('%Y', datetime(s.timestamp, 'unixepoch')) as year, a.name, t.title, count(s.id) AS scrobbles FROM scrobble s, track t, artist a WHERE s.track_id=t.id AND t.artist_id=a.id AND year='2014' GROUP BY year, a.name, t.title ORDER BY scrobbles DESC LIMIT 10;
+

@@ -1,0 +1,125 @@
+<html>
+
+<head>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.1.2.min.js"></script>
+  
+  <style>
+    .chart rect {
+      fill: red;
+    }
+
+    .chart text {
+      fill: white;
+      font: 10px sans-serif;
+      text-anchor: end;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <script>
+
+    /* accepts parameters
+     * h  Object = {h:x, s:y, v:z}
+     * OR 
+     * h, s, v
+    */
+    function hsv(h, s, v)
+    {
+        var r, g, b, i, f, p, q, t;
+        if (h && s === undefined && v === undefined) {
+            s = h.s, v = h.v, h = h.h;
+        }
+        i = Math.floor(h * 6);
+        f = h * 6 - i;
+        p = v * (1 - s);
+        q = v * (1 - f * s);
+        t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+        return "rgb(" + Math.floor(r * 255) + ", " + Math.floor(g * 255) + ", " + Math.floor(b * 255) + ")";
+    }
+
+    //var fillColors = [hsv(0, 255, 20)];
+    //var borderColors = [];
+
+    var svg = dimple.newSvg("body", 800, 940);
+
+    d3.tsv("reports/top50ArtistsScrobblesByYear.tsv", function (data)
+    {
+      var chart = new dimple.chart(svg, data);
+      chart.setMargins(140, 40, 15, 40);
+      chart.addLegend(140, 10, 800, 40, "left");
+
+      var x = chart.addMeasureAxis("x", "Scrobbles");
+      x.tickFormat = "d";
+
+      var y = chart.addCategoryAxis("y", "Artist");
+      y.addOrderRule("Scrobbles", false);
+      y.ticks = 5;
+      
+      var s = chart.addSeries("Year", dimple.plot.bar);
+      s.addOrderRule("Year", false);
+
+      for (var i = 0; i < 10; ++i)
+      {
+        var year = i + 2005;
+        var col = hsv(0.66 - 0.25 * (i/10.0),
+                      1.0,
+                      0.8 + 0.2 * (i/10.0));
+        chart.assignColor(year.toString(), col, "#ffffff");
+      }
+      
+      chart.draw();
+
+      //x.gridlineShapes.selectAll("line").attr("stroke", "#FF0000");
+
+      });
+    
+  </script>
+  
+<!--
+  <script>
+
+    var data = [4, 8, 18, 16, 23, 42];
+
+    var width = 400,
+        barHeight = 19;
+
+    var scale = d3.scale.linear()
+      .domain([0, d3.max(data)])
+      .range([0, width]);
+
+    var chart = d3.select(".chart")
+      .attr("width", width)
+      .attr("height", barHeight * data.length);
+
+    var bar = chart.selectAll("g")
+        .data(data)
+      .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+    bar.append("rect")
+      .attr("width", scale)
+      .attr("height", barHeight - 1);
+
+    bar.append("text")
+      .attr("x", function(d) { return scale(d) - 3; })
+      .attr("y", barHeight / 2)
+      .attr("dy", ".35em")
+      .text(function(d) { return d + " bla"; });
+
+
+  </script>
+-->
+</body>
+
