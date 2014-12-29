@@ -40,3 +40,7 @@ SELECT strftime('%Y', datetime(s.timestamp, 'unixepoch')) as year, a.name, count
 # Top tracks per year
 SELECT strftime('%Y', datetime(s.timestamp, 'unixepoch')) as year, a.name, t.title, count(s.id) AS scrobbles FROM scrobble s, track t, artist a WHERE s.track_id=t.id AND t.artist_id=a.id AND year='2014' GROUP BY year, a.name, t.title ORDER BY scrobbles DESC LIMIT 10;
 
+
+# Top scrobbled tags
+SELECT t.name, count(tt.id) AS scrobbles FROM tag t, track_tag tt WHERE tt.tag_id=t.id GROUP BY t.name ORDER BY scrobbles DESC LIMIT 10;
+
