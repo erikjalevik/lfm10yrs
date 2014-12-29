@@ -52,9 +52,9 @@
     //var fillColors = [hsv(0, 255, 20)];
     //var borderColors = [];
 
-    var svg = dimple.newSvg("body", 800, 940);
+    var svg = dimple.newSvg("body", 800, 1200);
 
-    d3.tsv("reports/top50ArtistsScrobblesByYear.tsv", function (data)
+    d3.tsv("../reports/top50ArtistsScrobblesByYear.tsv", function (data)
     {
       var chart = new dimple.chart(svg, data);
       chart.setMargins(140, 40, 15, 40);
