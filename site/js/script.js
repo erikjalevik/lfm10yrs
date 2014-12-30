@@ -1,7 +1,7 @@
 // To test locally in Chrome with cross-domain prevention disabled:
 // chrome.exe --user-data-dir="J:/Dump/chrometestsession" --disable-web-security
 
-d3.tsv("../reports/top50ArtistsScrobblesByYear.tsv", function (data)
+d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
 {
   // This function will be called on completion of file read.
   // data is an array of objects keyed on column name.
