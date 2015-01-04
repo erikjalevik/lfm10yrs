@@ -1,3 +1,12 @@
+# To dump query to a tsv file
+.mode tabs
+.headers on
+.output [filename]
+
+# To reset
+.output stdout
+
+
 # Scrobbles by year
 SELECT strftime('%Y', datetime(timestamp, 'unixepoch')) as year, count(id) FROM scrobble GROUP BY year ORDER BY year;
 
@@ -33,6 +42,9 @@ SELECT strftime('%W', datetime(timestamp, 'unixepoch')) AS week, count(id) AS sc
 # Scrobbles by day recurring
 SELECT strftime('%j', datetime(timestamp, 'unixepoch')) AS day, count(id) AS scrobbles FROM scrobble GROUP BY day ORDER BY day;
 
+
+# Top artists overall
+select a.name as artist, count(s.id) as scrobbles from scrobble s, track t, artist a where s.track_id=t.id and t.artist_id=a.id group by artist order by scrobbles desc limit 50;
 
 # Top artists per year
 SELECT strftime('%Y', datetime(s.timestamp, 'unixepoch')) as year, a.name, count(s.id) AS scrobbles FROM scrobble s, track t, artist a WHERE s.track_id=t.id AND t.artist_id=a.id AND year='2014' GROUP BY year, a.name ORDER BY scrobbles DESC LIMIT 10;
