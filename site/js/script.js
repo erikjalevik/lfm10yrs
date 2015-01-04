@@ -1,36 +1,22 @@
 // To test locally in Chrome with cross-domain prevention disabled:
 // chrome.exe --user-data-dir="J:/Dump/chrometestsession" --disable-web-security
+//
+// Or run python -m SimpleHTTPServer 8080 in the site directory.
+// Or python -m http.server 8080 if the above doesn't work.
 
-d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
+// Constants
+var margin = {top: 20, right: 20, bottom: 20, left: 20}
+
+// Expects data to be a table where xField and yField are two of the columns.
+function barChart(data, xField, yField)
 {
-  // This function will be called on completion of file read.
-  // data is an array of objects keyed on column name.
-  
-/*
-  var groupedData = d3.nest()
-    .key(function(d) { return d.Artist })
-    .key(function(d) { return d.Year })
-    .rollup(function(leaves) { return parseInt(leaves[0].Scrobbles) })
-    .map(data);
-  console.log(groupedData)
-*/
-  var summedCounts = d3.nest()
-    .key(function(d) { return d.Artist })
-    .rollup(function(years) { return d3.sum(years.map(function(obj) { return parseInt(obj.Scrobbles) })) })
-    .entries(data)
-  summedCounts = summedCounts.map(function(obj) { return {artist: obj.key, scrobbles: obj.values} })
-
-  var data = summedCounts
-
-  var margin = {top: 20, right: 20, bottom: 20, left: 20}
-
   var svg = d3.select(".chart svg")
   var width = svg.attr("width") - margin.left - margin.right
   var height = svg.attr("height") - margin.top - margin.bottom
 
-  var getValues = function(obj) { return obj.scrobbles }
+  var getValues = function(obj) { return obj[xField] }
 
-  // Ordinal scales used for continuous values
+  // Linear scales used for continuous values
   var scaleX = d3.scale.linear()
     .domain([0, d3.max(data, getValues)])
     .rangeRound([0, width])
@@ -60,16 +46,16 @@ d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
   var rects = bars.append("rect")
     .attr("width", 0.0)
     .attr("height", scaleY.rangeBand())
-    .style("fill", function(d) { return scaleColor(d.scrobbles) })
+    .style("fill", function(d) { return scaleColor(d[xField]) })
 
   var labels = bars.append("text")
     .attr("x", margin.left)
     .attr("y", scaleY.rangeBand() / 2)
     .attr("dy", "0.35em")
     .style("font-size", "14px")
-    .style("fill", function(d) { return scaleColor(d.scrobbles) })
+    .style("fill", function(d) { return scaleColor(d[xField]) })
     .style("opacity", 0.0)
-    .text(function(d) { return d.scrobbles })
+    .text(function(d) { return d[xField] })
 
   // In animations
   bars.transition().duration(1000)
@@ -78,12 +64,12 @@ d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
 
   rects.transition().duration(1000)
     .ease("elastic", 1.0, 0.3) //  1st param = amplitude around final pos, 2nd param = inertia
-    .attr("width", function(d) { return scaleX(d.scrobbles) })
+    .attr("width", function(d) { return scaleX(d[xField]) })
     .delay(function(d, i) { return i * 20 })
 
   labels.transition().duration(1000)
     .ease("cubic-out")
-    .attr("x", function(d) { return scaleX(d.scrobbles) - 30 })
+    .attr("x", function(d) { return scaleX(d[xField]) - 30 })
     .style("fill", "#000000")
     .style("opacity", 1.0)
     .delay(function(d, i) { return 200 + i * 20 })
@@ -106,7 +92,7 @@ d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
       //var rectW = parseInt(rect.attr("width"))
       //var rectH = parseInt(rect.attr("height"))
 
-      tooltip.html(d.artist)
+      tooltip.html(d[yField])
       tooltip.transition().duration(100)
         .style("opacity", 0.9)
     })
@@ -115,7 +101,7 @@ d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
     {
       d3.select(this)
         .transition().duration(400)
-        .style("fill", function(d) { return scaleColor(d.scrobbles) })
+        .style("fill", function(d) { return scaleColor(d[xField]) })
 
       tooltip.transition().duration(400)
         .style("opacity", 0.0)
@@ -127,5 +113,41 @@ d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
         .style("left", d3.event.pageX + "px")
         .style("top", (d3.event.pageY + 24) + "px")
     })
+}
 
-});
+function stackedBarChart(data, xField, yField, stackField)
+{
+/*
+  var groupedData = d3.nest()
+    .key(function(d) { return d.Artist })
+    .key(function(d) { return d.Year })
+    .rollup(function(leaves) { return parseInt(leaves[0].Scrobbles) })
+    .map(data);
+  console.log(groupedData)
+*/
+  var summedCounts = d3.nest()
+    .key(function(d) { return d.Artist })
+    .rollup(function(years) { return d3.sum(years.map(function(obj) { return parseInt(obj.Scrobbles) })) })
+    .entries(data)
+  summedCounts = summedCounts.map(function(obj) { return {artist: obj.key, scrobbles: obj.values} })
+}
+
+
+d3.tsv("data/top50ArtistsOverall.tsv", function (data)
+{
+  // This function will be called on completion of file read.
+  // data is an array of objects keyed on column name.
+  
+  // xField - scrobbles
+  // yField - artist
+  barChart(data, "scrobbles", "artist")
+
+})
+
+d3.tsv("data/top50ArtistsScrobblesByYear.tsv", function (data)
+{
+  // xField - scrobbles
+  // yField - artist
+  // stackField - year
+  //stackedBarChart(data, "scrobbles", "artist", "year")
+})
