@@ -10,11 +10,12 @@ def queryInfo(tag):
 
   params = {
     "method": "tag.getinfo",
-    "tag": tag,
+    "tag": tag.strip(),
     "api_key": apiKey
   }
 
   url = stem + urllib.parse.urlencode(params)
+
   response = urllib.request.urlopen(url).read()
   
   xmlTree = ET.fromstring(response)
